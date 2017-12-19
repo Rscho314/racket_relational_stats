@@ -1,0 +1,16 @@
+﻿- make an executable and wrap it for different langages (R, python, Julia,...)
+- use SWI Prolog with CLPR
+- use a dataset
+- use a statistical model (begin easy, t-test for example)
+- from negative paper results, generate the minimally modified data that would make the result positive, as a means to generate a new clinical hypothesis.
+	+ use fixed and modifiable variables (CLP or linear programming)
+	+ coefficient representing ease of modifying a variable
+- also works as a result verifier for academic papers
+- to add to existing results in papers, give intervals describing the possible distributions for a negative or positive result (ex : renal insufficiency kills → give distribution of creatinine resulting in increased mortality with the given statistical model and the given population).
+- things that can be used to generate solutions :
+	+ vary criteria for strength of association
+	+ vary nature of association (i.e model, ~=step regression)
+	+ other variables
+- It will be impossible to directly generate samples from the solver, because search space too big, so must generate distribution parameters and then sample from that distribution in a second stage.
+- A first layer of Prolog code will therefore go from test results → distribution parameters, without trying to generate a sample, while a second layer (in whatever langage) will be used to generate the distribution parameters and will go from data → parameters (descriptive statistics).
+- First priority is therefore to write the statical tests algorithms in a relational manner, since distribution parameter generation can be done with existing packages.
