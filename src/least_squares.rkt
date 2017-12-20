@@ -1,8 +1,15 @@
 #lang racket
+;TODO
+;review array/matrix vs list usage
+;use matrix decomposition for betahat
+;use t distribution instead of normal
 
 (require math/matrix
          math/array
+         math/distributions
+         math/statistics
          plot)
+
 (provide betahat
          intercept
          coefs
@@ -10,7 +17,10 @@
          fit-ys
          residual-sum-of-squares
          degrees-of-freedom
-         sd-beta
+         residual-variance
+         r-square
+         se-coef
+         confidence-interval
          plot-least-squares)
 
 (define (betahat x y)
@@ -40,8 +50,23 @@
 (define (degrees-of-freedom n p)
   (- n p))
 
-(define (sd-beta rss df)
+(define (residual-variance rss df)
   (/ rss df))
+
+(define (r-square rss y)
+  (let ([mu (/ (array-all-sum y) (array-size y))])
+    (- 1 (/ rss (array-all-sum (array-sqr (array-map (λ (e) (- e mu)) y)))))))
+
+(define (se-coef x sigma n)
+  (*  sigma
+      (sqrt
+       (matrix-ref
+        (matrix-inverse (matrix* x (matrix-transpose x))) n n))))
+
+(define (confidence-interval coef se-coef alpha)
+  (map (λ(b) (+ coef (* b se-coef)))
+         (map (λ(x) (inv-cdf (normal-dist) x))
+              (list (/ alpha 2) (- 1 (/ alpha 2))))))
 
 (define (plot-least-squares intercept coefs xs ys)
   (let ([pts

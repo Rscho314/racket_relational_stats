@@ -52,17 +52,20 @@
                     (hash-ref data-hash 'x)
                     (list (:: 1 #f 1) (::))))))
 
-(define rss (residual-sum-of-squares
-                  fits
-                  (array-flatten
-                   (array-slice-ref
-                    (hash-ref data-hash 'x)
-                    (list (:: 1 #f 1) (::))))))
+(define rss (residual-sum-of-squares fits (hash-ref data-hash 'y)))
 
 (define df (degrees-of-freedom (array-size (hash-ref data-hash 'y))
                                (matrix-num-rows (hash-ref data-hash 'x))))
 
-(define sigma (sd-beta rss df))
+(define residual-sd (sqrt (residual-variance rss df)))
+
+(define rsq (r-square rss (hash-ref data-hash 'y)))
+
+(define se-coefs (map
+                  (λ (n) (se-coef (hash-ref data-hash 'x) residual-sd n))
+                  (range 0 (array-size bh))))
+
+(define ci (map (λ(c se) (confidence-interval c se 0.05)) (array->list bh) se-coefs))
 
 ;test
 (define tests
@@ -71,9 +74,12 @@
 
    (check-equal? bh (array #[#[7/2] #[7/5]]))
    (check-equal? fits (array #[49/10 63/10 77/10 91/10]))
-   (check-equal? rss 409/5)
+   (check-equal? rss 21/5)
    (check-equal? df 2)
-   (check-equal? sigma 409/10)
+   (check-= residual-sd 1.44 0.01)
+   (check-equal? rsq 7/10)
+   (map (λ (x y) (check-= x y 0.01)) se-coefs '(1.77 0.64))
+   (map (λ (x y) (check-= x y 0.01)) (flatten ci) '(0.021 6.97 0.12 2.67))
    ))
    
    (plot-least-squares (intercept bh)
