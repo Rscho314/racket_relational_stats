@@ -1,6 +1,5 @@
 #lang racket
 ;TODO
-;review array/matrix vs list usage
 ;use matrix decomposition for betahat
 ;use t distribution instead of normal
 
@@ -25,21 +24,22 @@
 
 (define (betahat x y)
   ;must be redone with matrix decomposition, see Faraway p.19
-  (matrix*
-   (matrix-inverse (matrix* x (matrix-transpose x)))
-   x
-   (matrix-transpose y)))
+  (matrix->list
+   (matrix*
+    (matrix-inverse (matrix* x (matrix-transpose x)))
+    x
+    (matrix-transpose y))))
 
 (define (intercept bh)
-  (array-ref (array-slice-ref bh '((0)(0))) #(0 0)))
+  (list-ref bh 0))
 
 (define (coefs bh)
-  (array-flatten (array-slice-ref bh (list (:: 1 #f 1) (::)))))
+  (cdr bh))
 
 (define (regression-equation intercept coefs)
   (λ (x) (+ intercept
-            (array-all-sum
-             (array-map (λ (b) (* b x)) coefs)))))
+            (foldl + 0
+             (map (λ (b) (* b x)) coefs)))))
 
 (define (fit-ys intercept coefs xs)
   (array-map (regression-equation intercept coefs) xs))
