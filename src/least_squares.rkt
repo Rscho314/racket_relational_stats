@@ -20,6 +20,8 @@
          r-square
          se-coef
          confidence-interval
+         t-stat
+         p-value
          plot-least-squares)
 
 (define (betahat x y)
@@ -63,10 +65,19 @@
        (matrix-ref
         (matrix-inverse (matrix* x (matrix-transpose x))) n n))))
 
-(define (confidence-interval coef se-coef alpha)
+(define (confidence-interval coef se-coef alpha [sides 2])
   (map (λ(b) (+ coef (* b se-coef)))
          (map (λ(x) (inv-cdf (normal-dist) x))
-              (list (/ alpha 2) (- 1 (/ alpha 2))))))
+              (list (/ alpha sides) (- 1 (/ alpha sides))))))
+
+(define (t-stat coef se-coef [hypothesis 0])
+  ;hypothesis default value is 0, since we usually
+  ;want to see if coef is \= from 0, however this
+  ;leaves freedom for other hypotheses.
+  (/ (- coef hypothesis) se-coef))
+
+(define (p-value t-stat [sides 2])
+  (* sides (cdf (normal-dist) (* -1 (abs t-stat)))))
 
 (define (plot-least-squares intercept coefs xs ys)
   (let ([pts

@@ -34,6 +34,10 @@
 
 (define ci (map (λ(c se) (confidence-interval c se 0.05)) bh se-coefs))
 
+(define t-stats (map (λ(c se) (t-stat c se)) bh se-coefs))
+
+(define p-values (map (λ(t) (p-value t)) t-stats))
+
 ;test
 (define tests
   (test-suite
@@ -47,6 +51,8 @@
    (check-equal? rsq 7/10)
    (map (λ (x y) (check-= x y 0.01)) se-coefs '(1.77 0.64))
    (map (λ (x y) (check-= x y 0.01)) (flatten ci) '(0.021 6.97 0.12 2.67))
+   (map (λ (x y) (check-= x y 0.01)) t-stats '(1.97 2.16))
+   (map (λ(x y) (check-= x y 0.01)) p-values '(0.048 0.030))
    ))
    
    (plot-least-squares (intercept bh)
