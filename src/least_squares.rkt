@@ -1,5 +1,6 @@
 #lang racket
 ;TODO
+;REFACTOR USING STATISTICS OBJECTS
 ;use matrix decomposition for betahat
 ;use t distribution instead of normal
 

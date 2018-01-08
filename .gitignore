@@ -3,3 +3,5 @@
 *.zo
 *.csv
 *#*
+/papers
+/notes
